@@ -10,6 +10,8 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -40,13 +42,46 @@ public class VierBotDriver extends javax.swing.JPanel {
     //vista frontal
     int xFrontal = 500, yFrontal = 200;
 
-    int aux = 10;
+    double angulosP1[];
+    double angulosP2[];
+    double angulosP3[];
+    double angulosP4[];
+    int precision = 10;
     ArduinoRXTX puerto;
     Scheduler scheduler;
 
+    public VierBotDriver(Scheduler scheduler) {
+        initComponents();
+         puerto = new ArduinoRXTX();
+        // int coordenadas[][] ={{pX1,pY1},{pX2,pY2},{pX3,pY3},{pX4,pY4}};
+        this.scheduler = scheduler;
+        xIP1 = scheduler.getxIP1();
+        xIP2 = scheduler.getxIP2();
+        xIP3 = scheduler.getxIP3();
+        xIP4 = scheduler.getxIP4();
+
+        yIP1 = scheduler.getyIP1();
+        yIP2 = scheduler.getyIP2();
+        yIP3 = scheduler.getyIP3();
+        yIP4 = scheduler.getyIP4();
+
+        setFocusable(true);
+    }
+
+    @Override
     public void paint(Graphics g) {
         super.paint(g);
         Graphics2D g2d = (Graphics2D) g;
+
+        pX1 = scheduler.getpX1();
+        pX2 = scheduler.getpX2();
+        pX3 = scheduler.getpX3();
+        pX4 = scheduler.getpX4();
+
+        pY1 = scheduler.getpY1();
+        pY2 = scheduler.getpY2();
+        pY3 = scheduler.getpY3();
+        pY4 = scheduler.getpY4();
 
         //tronco
         g2d.setColor(Color.gray);
@@ -54,11 +89,10 @@ public class VierBotDriver extends javax.swing.JPanel {
         g2d.drawLine(xIP1, yIP1, xIP1 + 100, yIP1);
         g2d.drawLine(xFrontal, yIP1, xFrontal + 50, yIP1);
         g2d.setStroke(new BasicStroke(2));
-
-        double angulosP1[] = scheduler.kinematic(pX1 - xIP1 + 5, pY1 - yIP1);
-        double angulosP2[] = scheduler.kinematic(pX2 - xIP2 + 5, pY2 - yIP2);
-        double angulosP3[] = scheduler.kinematic(pX3 - xIP3 + 5, pY3 - yIP3);
-        double angulosP4[] = scheduler.kinematic(pX4 - xIP4 + 5, pY4 - yIP4);
+        angulosP1 = scheduler.kinematic(pX1 - xIP1 + 5, pY1 - yIP1);
+        angulosP2 = scheduler.kinematic(pX2 - xIP2 + 5, pY2 - yIP2);
+        angulosP3 = scheduler.kinematic(pX3 - xIP3 + 5, pY3 - yIP3);
+        angulosP4 = scheduler.kinematic(pX4 - xIP4 + 5, pY4 - yIP4);
 
         g2d.setColor(Color.red);
         //brazo 1
@@ -110,14 +144,29 @@ public class VierBotDriver extends javax.swing.JPanel {
         //brazo4 vista frontal
         g2d.drawLine(xFrontal - 10, yFrontal, xFrontal - 10, pY4);
 
+        //-------------------------------------------//
+        g2d.setColor(Color.red);
+        //brazo 1
+        /* int q = -110, p = 120;
+        double pointN[] = scheduler.toCartesian(scheduler.getL1(), q);
+        double pointN2[] = scheduler.toCartesian(scheduler.getL1(), q + p);
+        double xM = (int) pointN2[0] + xIP1 + (int) pointN[0];
+        double yM = (int) pointN2[1] + yIP1 + (int) pointN[1];
+
+        //double pointL[] = scheduler.toCartesian(scheduler.getL1(), q);
+        g2d.drawLine(xIP1, yIP1 + 5, xIP1 + (int) pointN[0], yIP1 + (int) pointN[1] + 5);
+
+        g2d.setColor(Color.blue);
+        //antebrazo 1
+        g2d.drawLine(xIP1 + (int) pointN[0], yIP1 + (int) pointN[1] + 5, (int)xM, (int)yM);
+         */
+        //    System.out.println("xm =  " + xm + "     ym = " + ym);
+        //System.out.println("x =  " + pX1 + "     y = " + pY1);
+        // System.out.println("q1 =  " + angulosP1[0] + "     q2 = " + angulosP1[1]);
     }
 
-    public VierBotDriver() {
-        initComponents();
-        // puerto = new ArduinoRXTX();
-        scheduler = new Scheduler();
-        scheduler.writter();
-        setFocusable(true);
+    public void run() {
+        repaint();
     }
 
     /**
@@ -134,6 +183,8 @@ public class VierBotDriver extends javax.swing.JPanel {
         jCheckBox3 = new javax.swing.JCheckBox();
         jCheckBox4 = new javax.swing.JCheckBox();
         jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
 
         setPreferredSize(new java.awt.Dimension(800, 500));
         addKeyListener(new java.awt.event.KeyAdapter() {
@@ -157,6 +208,20 @@ public class VierBotDriver extends javax.swing.JPanel {
             }
         });
 
+        jButton2.setText("Reproducir");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+
+        jButton3.setText("Detener");
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton3ActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -171,8 +236,13 @@ public class VierBotDriver extends javax.swing.JPanel {
                 .addGap(18, 18, 18)
                 .addComponent(jCheckBox4)
                 .addGap(195, 195, 195)
-                .addComponent(jButton1)
-                .addContainerGap(168, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(jButton2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButton3))
+                    .addComponent(jButton1))
+                .addContainerGap(137, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -184,10 +254,14 @@ public class VierBotDriver extends javax.swing.JPanel {
                     .addComponent(jCheckBox3)
                     .addComponent(jCheckBox4)
                     .addComponent(jButton1))
-                .addContainerGap(462, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jButton2)
+                    .addComponent(jButton3))
+                .addContainerGap(433, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
-    
+
     private void formKeyPressed(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_formKeyPressed
         // TODO add your handling code here:
         switch (evt.getKeyCode()) {
@@ -197,7 +271,6 @@ public class VierBotDriver extends javax.swing.JPanel {
                 } else {
                     jCheckBox1.setSelected(true);
                 }
-                System.out.println("presionado");
                 break;
             case KeyEvent.VK_NUMPAD2:
                 if (jCheckBox2.isSelected()) {
@@ -224,64 +297,64 @@ public class VierBotDriver extends javax.swing.JPanel {
         switch (evt.getKeyCode()) {
             case KeyEvent.VK_UP:
                 if (jCheckBox1.isSelected()) {
-                    pY1 -= aux;
+                    scheduler.setpY1(pY1 -= precision);
                 }
                 if (jCheckBox2.isSelected()) {
-                    pY2 -= aux;
+                    scheduler.setpY2(pY2 -= precision);
                 }
                 if (jCheckBox3.isSelected()) {
-                    pY3 -= aux;
+                    scheduler.setpY3(pY3 -= precision);
                 }
                 if (jCheckBox4.isSelected()) {
-                    pY4 -= aux;
+                    scheduler.setpY4(pY4 -= precision);
                 }
                 break;
             case KeyEvent.VK_DOWN:
                 if (jCheckBox1.isSelected()) {
-                    pY1 += aux;
+                    scheduler.setpY1(pY1 += precision);
                 }
                 if (jCheckBox2.isSelected()) {
-                    pY2 += aux;
+                    scheduler.setpY2(pY2 += precision);
                 }
                 if (jCheckBox3.isSelected()) {
-                    pY3 += aux;
+                    scheduler.setpY3(pY3 += precision);
                 }
                 if (jCheckBox4.isSelected()) {
-                    pY4 += aux;
+                    scheduler.setpY4(pY4 += precision);
                 }
 
                 break;
             case KeyEvent.VK_RIGHT:
                 if (jCheckBox1.isSelected()) {
-                    pX1 += aux;
+                    scheduler.setpX1(pX1 += precision);
                 }
                 if (jCheckBox2.isSelected()) {
-                    pX2 += aux;
+                    scheduler.setpX2(pX2 += precision);
                 }
                 if (jCheckBox3.isSelected()) {
-                    pX3 += aux;
+                    scheduler.setpX3(pX3 += precision);
                 }
                 if (jCheckBox4.isSelected()) {
-                    pX4 += aux;
+                    scheduler.setpX4(pX4 += precision);
                 }
                 break;
             case KeyEvent.VK_LEFT:
                 if (jCheckBox1.isSelected()) {
-                    pX1 -= aux;
+                    scheduler.setpX1(pX1 -= precision);
                 }
                 if (jCheckBox2.isSelected()) {
-                    pX2 -= aux;
+                    scheduler.setpX2(pX2 -= precision);
                 }
                 if (jCheckBox3.isSelected()) {
-                    pX3 -= aux;
+                    scheduler.setpX3(pX3 -= precision);
                 }
                 if (jCheckBox4.isSelected()) {
-                    pX4 -= aux;
+                    scheduler.setpX4(pX4 -= precision);
                 }
                 break;
         }
 
-        if(evt.getKeyCode() == KeyEvent.VK_G){
+        if (evt.getKeyCode() == KeyEvent.VK_G) {
             jButton1.doClick();
         }
         repaint();
@@ -289,12 +362,24 @@ public class VierBotDriver extends javax.swing.JPanel {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
-        
+        scheduler.guardarCoordenadas((int) angulosP1[0], (int) angulosP1[1]);
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        scheduler.setFlag(true);
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+        // TODO add your handling code here:
+        scheduler.setFlag(false);
+    }//GEN-LAST:event_jButton3ActionPerformed
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JCheckBox jCheckBox2;
     private javax.swing.JCheckBox jCheckBox3;
