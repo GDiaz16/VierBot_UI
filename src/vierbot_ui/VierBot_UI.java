@@ -23,7 +23,7 @@ public class VierBot_UI {
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException ex) {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
-        JFrame frame = new JFrame("Hotel Continental");
+        JFrame frame = new JFrame("VierBot");
         frame.setBackground(Color.decode("#58D3F7"));
         frame.add(new VierBotDriver());
         frame.setSize(600, 500);
