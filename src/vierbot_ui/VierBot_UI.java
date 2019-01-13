@@ -26,7 +26,7 @@ public class VierBot_UI {
         JFrame frame = new JFrame("VierBot");
         frame.setBackground(Color.decode("#58D3F7"));
         frame.add(new VierBotDriver());
-        frame.setSize(600, 500);
+        frame.setSize(800, 500);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
