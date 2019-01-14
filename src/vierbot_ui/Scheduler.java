@@ -34,6 +34,12 @@ public class Scheduler extends Thread {
     //puntero pierna 2
     int pX4 = 260, pY4 = 300;
 
+    ArduinoRXTX puerto;
+
+    public Scheduler() {
+        puerto = new ArduinoRXTX();
+    }
+
     public int getxIP1() {
         return xIP1;
     }
@@ -154,6 +160,7 @@ public class Scheduler extends Thread {
             //System.out.println("run");
             if (flag) {
                 animador();
+                //puerto.protocol();
             }
             try {
                 sleep(100);
@@ -179,6 +186,8 @@ public class Scheduler extends Thread {
         double pointN2[] = toCartesian(getL1(), angulos[i][0] + angulos[i][1]);
         pX1 = (int) pointN2[0] + xIP1 + (int) pointN1[0];
         pY1 = (int) pointN2[1] + yIP1 + (int) pointN1[1];
+        
+
     }
 
     public void rutaP2(int i) {
@@ -201,31 +210,34 @@ public class Scheduler extends Thread {
         double pointN2[] = toCartesian(getL1(), angulos[i][0] + angulos[i][1]);
         pX4 = (int) pointN2[0] + xIP4 + (int) pointN1[0];
         pY4 = (int) pointN2[1] + yIP4 + (int) pointN1[1];
+        //q1
+        //puerto.sendData(5, angulos[i][0]);
+        //q2
+        //puerto.sendData(0, angulos[i][1]+80);
     }
     int c1 = 0;
-    int c2 = angulos.length/2;
-    
+    int c2 = angulos.length / 2;
+
     public void animador() {
         int i = 0;
         long inicio = System.currentTimeMillis();
         long periodo = 100;
         while (i < angulos.length) {
             if (System.currentTimeMillis() - inicio > periodo) {
-                if(c1<angulos.length){
+                if (c1 < angulos.length) {
                     rutaP1(c1);
                     rutaP4(c1);
                     c1++;
-                }else{
-                    c1=0;
+                } else {
+                    c1 = 0;
                 }
-                if(c2<angulos.length){
+                if (c2 < angulos.length) {
                     rutaP2(c2);
                     rutaP3(c2);
                     c2++;
-                }else{
-                    c2=0;
+                } else {
+                    c2 = 0;
                 }
-                
 
                 inicio = System.currentTimeMillis();
                 i++;

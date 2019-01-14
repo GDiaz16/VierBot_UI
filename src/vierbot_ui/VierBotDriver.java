@@ -46,13 +46,11 @@ public class VierBotDriver extends javax.swing.JPanel {
     double angulosP2[];
     double angulosP3[];
     double angulosP4[];
-    int precision = 10;
-    ArduinoRXTX puerto;
+    int precision = 1;
     Scheduler scheduler;
 
     public VierBotDriver(Scheduler scheduler) {
         initComponents();
-         puerto = new ArduinoRXTX();
         // int coordenadas[][] ={{pX1,pY1},{pX2,pY2},{pX3,pY3},{pX4,pY4}};
         this.scheduler = scheduler;
         xIP1 = scheduler.getxIP1();
@@ -145,24 +143,7 @@ public class VierBotDriver extends javax.swing.JPanel {
         g2d.drawLine(xFrontal - 10, yFrontal, xFrontal - 10, pY4);
 
         //-------------------------------------------//
-        g2d.setColor(Color.red);
-        //brazo 1
-        /* int q = -110, p = 120;
-        double pointN[] = scheduler.toCartesian(scheduler.getL1(), q);
-        double pointN2[] = scheduler.toCartesian(scheduler.getL1(), q + p);
-        double xM = (int) pointN2[0] + xIP1 + (int) pointN[0];
-        double yM = (int) pointN2[1] + yIP1 + (int) pointN[1];
 
-        //double pointL[] = scheduler.toCartesian(scheduler.getL1(), q);
-        g2d.drawLine(xIP1, yIP1 + 5, xIP1 + (int) pointN[0], yIP1 + (int) pointN[1] + 5);
-
-        g2d.setColor(Color.blue);
-        //antebrazo 1
-        g2d.drawLine(xIP1 + (int) pointN[0], yIP1 + (int) pointN[1] + 5, (int)xM, (int)yM);
-         */
-        //    System.out.println("xm =  " + xm + "     ym = " + ym);
-        //System.out.println("x =  " + pX1 + "     y = " + pY1);
-        // System.out.println("q1 =  " + angulosP1[0] + "     q2 = " + angulosP1[1]);
     }
 
     public void run() {
