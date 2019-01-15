@@ -1,44 +1,36 @@
 #include <Wire.h>
 #include <Adafruit_PWMServoDriver.h>
 
-
-Adafruit_PWMServoDriver servos = Adafruit_PWMServoDriver(0x40);
-
-unsigned int pos0 = 170; // ancho de pulso en cuentas para pocicion 0°
-unsigned int pos180 = 580; // ancho de pulso en cuentas para la pocicion 180°
-boolean flag = true;
 class Articulacion {
   private:
     int angulo1 = 90;
     int angulo2 = 90;
     int servo;
   public:
-  Articulacion():  servo(0){}
+    // Articulacion(int servo) ; //servo(0){}
     int* cola = new int[1];
-    void addAngulo(int angulo) {
-      add(angulo);
-    }
-    int getServo(){
+
+    int getServo() {
       return servo;
     }
-    
+    int setServo(int n) {
+      servo = n;
+    }
+  int getAngulo(){
+    return angulo1;
+  }
     void plusOne() {
       if (abs(angulo2 - angulo1) > 0 && angulo2 > angulo1) {
         angulo1++;
       } else if (abs(angulo2 - angulo1) > 0 && angulo2 < angulo1) {
         angulo1--;
-      }else if(abs(angulo2 - angulo1)<=0 && sizeof(cola)>0){
+      } else if (abs(angulo2 - angulo1) <= 0 && sizeof(cola) > 0) {
         angulo1 = angulo2;
-        angulo2=pop();
+        angulo2 = pop();
       }
     }
 
-
-
-
-
-
-    void add(int element) {
+    void addAngulo(int element) {
       int* aux = new int[sizeof(cola)];
       for (int i = 0 ; i < sizeof(cola); i++) {
         aux[i] = cola[i];
@@ -67,12 +59,21 @@ class Articulacion {
 
 };
 
+Adafruit_PWMServoDriver servos = Adafruit_PWMServoDriver(0x40);
+
+unsigned int pos0 = 170; // ancho de pulso en cuentas para pocicion 0°
+unsigned int pos180 = 580; // ancho de pulso en cuentas para la pocicion 180°
+boolean flag = true;
+Articulacion arts[12] ;
+
 void setup() {
   servos.begin();
   servos.setPWMFreq(60); //Frecuecia PWM de 60Hz o T=16,66ms
   Serial.begin(9600);
 
-  Articulacion arts[12] ;
+  for (int i = 0; i < 12; i++) {
+    arts[i].setServo(i);
+  }
 }
 
 void setServo(uint8_t n_servo, int angulo) {
@@ -110,25 +111,20 @@ void loop() {
       data2 = false;
     } else if (data.equals("$")) {
       String s = servo + "   " + angulo;
+      if (servo.toInt() >= 0 && servo.toInt() < 12 ) {
+        arts[servo.toInt()].addAngulo(angulo.toInt());
+      }
       Serial.println(s);
 
     }
   }
 
-  for (int i = angulo.toInt(); i < 140; i++) {
-    setServo(5, i);
-    delay(10);
-  }
-  for (int i = 140; i > 30; i--) {
-    setServo(5, i);
-    delay(10);
+  for (int i = 0; i < 12; i++) {
+    arts[i].plusOne();
+    
+  setServo(arts[i].getServo(), arts[i].getAngulo());
   }
 
-
-  ///hacer protocolo, transmision con flag de respuesta bidireccional
-
-  //int coord[][2] = {{37, 87}, {33, 85}, {29, 81}, {27, 76}, {17, 82}, {9, 92}, {11, 98}, {7, 112}, {12, 115}, {18, 118}, {25, 119}, {34, 119}, {42, 118}, {51, 115}, {60, 112}, {69, 107}, {70, 98}, {78, 92}, {88, 75}, {100, 53}, {83, 70}, {75, 76}, {68, 81}, {61, 85}, {54, 87}, {48, 88}, {42, 88}, {37, 87}};
-  //setServo(servo.toInt(), angulo.toInt());
   delay(10);
 
 }
