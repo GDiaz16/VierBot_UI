@@ -46,8 +46,9 @@ public class VierBotDriver extends javax.swing.JPanel {
     double angulosP2[];
     double angulosP3[];
     double angulosP4[];
-    int precision = 1;
+    int precision = 20;
     Scheduler scheduler;
+    ArduinoRXTX puerto;
 
     public VierBotDriver(Scheduler scheduler) {
         initComponents();
@@ -62,8 +63,15 @@ public class VierBotDriver extends javax.swing.JPanel {
         yIP2 = scheduler.getyIP2();
         yIP3 = scheduler.getyIP3();
         yIP4 = scheduler.getyIP4();
-
+        puerto = scheduler.getPuerto();
         setFocusable(true);
+    }
+
+    public void getAngulos() {
+        angulosP1 = scheduler.kinematic(pX1 - xIP1 + 5, pY1 - yIP1);
+        angulosP2 = scheduler.kinematic(pX2 - xIP2 + 5, pY2 - yIP2);
+        angulosP3 = scheduler.kinematic(pX3 - xIP3 + 5, pY3 - yIP3);
+        angulosP4 = scheduler.kinematic(pX4 - xIP4 + 5, pY4 - yIP4);
     }
 
     @Override
@@ -80,17 +88,13 @@ public class VierBotDriver extends javax.swing.JPanel {
         pY2 = scheduler.getpY2();
         pY3 = scheduler.getpY3();
         pY4 = scheduler.getpY4();
-
+        getAngulos();
         //tronco
         g2d.setColor(Color.gray);
         g2d.setStroke(new BasicStroke(20));
         g2d.drawLine(xIP1, yIP1, xIP1 + 100, yIP1);
         g2d.drawLine(xFrontal, yIP1, xFrontal + 50, yIP1);
         g2d.setStroke(new BasicStroke(2));
-        angulosP1 = scheduler.kinematic(pX1 - xIP1 + 5, pY1 - yIP1);
-        angulosP2 = scheduler.kinematic(pX2 - xIP2 + 5, pY2 - yIP2);
-        angulosP3 = scheduler.kinematic(pX3 - xIP3 + 5, pY3 - yIP3);
-        angulosP4 = scheduler.kinematic(pX4 - xIP4 + 5, pY4 - yIP4);
 
         g2d.setColor(Color.red);
         //brazo 1
@@ -143,7 +147,6 @@ public class VierBotDriver extends javax.swing.JPanel {
         g2d.drawLine(xFrontal - 10, yFrontal, xFrontal - 10, pY4);
 
         //-------------------------------------------//
-
     }
 
     public void run() {
@@ -338,6 +341,11 @@ public class VierBotDriver extends javax.swing.JPanel {
         if (evt.getKeyCode() == KeyEvent.VK_G) {
             jButton1.doClick();
         }
+        getAngulos();
+        //System.out.println("P1 " + angulosP1[0] + "      P2  " + angulosP1[1]);
+        puerto.sendData(0, (int) angulosP1[1]+80);
+        puerto.sendData(5, (int) angulosP1[0]);
+
         repaint();
     }//GEN-LAST:event_formKeyPressed
 

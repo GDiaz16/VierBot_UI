@@ -30,8 +30,10 @@ public class ArduinoRXTX {
             try {
                 if (arduino.isMessageAvailable()) {
                     String message = arduino.printMessage();
-
-                    ok = true;
+                    if (message.equals("%")) {
+                        ok = true;
+                        protocol();
+                    }
                     System.out.println(message);
 
                 }
@@ -70,7 +72,7 @@ public class ArduinoRXTX {
     }
 
     public void protocol() {
-        if (ok && !buffer.isEmpty()) {
+        if (!buffer.isEmpty()) {
             sendData(((int[]) buffer.poll())[0], ((int[]) buffer.poll())[1]);
             ok = false;
         }

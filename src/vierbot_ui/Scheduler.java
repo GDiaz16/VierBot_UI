@@ -36,6 +36,10 @@ public class Scheduler extends Thread {
 
     ArduinoRXTX puerto;
 
+    public ArduinoRXTX getPuerto() {
+        return puerto;
+    }
+
     public Scheduler() {
         puerto = new ArduinoRXTX();
     }
@@ -180,7 +184,7 @@ public class Scheduler extends Thread {
     boolean mov1 = true;
     boolean mov2 = false;
     int angulos[][] = {{37, 87}, {33, 85}, {29, 81}, {27, 76}, {17, 82}, {9, 92}, {11, 98}, {7, 112}, {12, 115}, {18, 118}, {25, 119}, {34, 119}, {42, 118}, {51, 115}, {60, 112}, {69, 107}, {70, 98}, {78, 92}, {88, 75}, {100, 53}, {83, 70}, {75, 76}, {68, 81}, {61, 85}, {54, 87}, {48, 88}, {42, 88}, {37, 87}};
-
+    //int angulos[][] = {{35,73},{87,117}};
     public void rutaP1(int i) {
         double pointN1[] = toCartesian(getL1(), angulos[i][0]);
         double pointN2[] = toCartesian(getL1(), angulos[i][0] + angulos[i][1]);
